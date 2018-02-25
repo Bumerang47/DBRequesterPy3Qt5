@@ -4,11 +4,8 @@ import sys
 from PyQt5.QtCore import QSettings
 from PyQt5.QtWidgets import QApplication, QMessageBox, QFileDialog, QDialog
 from PyQt5 import uic
-from db_adapter import DbAdap
 from model import ResultTableModel
 import json
-import time
-import datetime
 
 (Ui_MainWindow, QMainWindow) = uic.loadUiType('window.ui')
 sys._excepthook = sys.excepthook
@@ -45,7 +42,8 @@ class MainWindow(QMainWindow):
         cb.previous_choice = cb.currentText()
 
         # Model table result init
-        t_model = ResultTableModel(self.ui.tableSQLResult)
+        app_name = self.settings.applicationName()
+        t_model = ResultTableModel(self.ui.tableSQLResult, app_name=app_name)
         self.ui.tableSQLResult.setModel(t_model)
 
         self.restoreDbConnect(db_connect)
@@ -99,26 +97,10 @@ class MainWindow(QMainWindow):
         path_db = self.ui.pathDBEdit.text()
         sql_text = self.ui.SQLTextEdit.toPlainText()
         try:
-            if (len(path_db) == 0 and type_db.lower() == 'sqlite'):
-                def_db_name = self.settings.applicationName()
-                path_db = 'file:{}?mode=memory&cache=shared'.format(def_db_name)
-            db = DbAdap(path_db, dbtype=type_db.lower())
-            cur = db.conn.cursor()
-            cur.execute(sql_text)
-            if cur.description is not None:
-                # Without results be not filling
-                start_time = time.time()
-                results = cur.fetchall()
-                self.statusBar().showMessage("--- lead time: %s seconds ---" % (time.time() - start_time))
-                if results is None or len(results) == 0:
-                    return
-                header = [description[0] for description in cur.description]
-                self.ui.tableSQLResult.model().setDataList(results, header)
-            else:
-                self.statusBar().showMessage("--- Executed successfully (time import timenow: {}) ---"
-                                             .format(datetime.datetime.now().strftime('%H:%M:%S')))
-            db.complete()
-            db.close()
+            t_model = self.ui.tableSQLResult.model()
+            t_model.connect_db(path_db, type_db.lower())
+            status_mes = t_model.execute(sql_text)
+            self.statusBar().showMessage(status_mes)
         except Exception as e:
             w_title = "Operation Error"
             w_message = e.args[0]
@@ -167,7 +149,7 @@ def show_warning(title, text):
 if __name__ == '__main__':
     # create application
     app = QApplication(sys.argv)
-    app.setApplicationName('dbSelect')
+    app.setApplicationName("dbSelect")
     db_type_list = ['SQLite', 'PostgreSQL', 'MySql']
     desc_settings = ('NameCompany', 'ToolName')
     # create widget
@@ -176,4 +158,3 @@ if __name__ == '__main__':
     w.show()
     # execute application
     sys.exit(app.exec_())
-
