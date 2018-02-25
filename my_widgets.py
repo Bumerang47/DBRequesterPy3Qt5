@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QTabWidget, QToolButton, QWidget, QTabBar
+from PyQt5.QtWidgets import QComboBox
 
 
 class DbComboBox(QComboBox):
@@ -33,29 +33,3 @@ class DbComboBox(QComboBox):
         index = self.findText(text)
         if index >= 0:
             self.setCurrentIndex(index)
-
-
-class DbTabWidged(QTabWidget):
-
-
-    def __init__(self, *args, **kwargs):
-        QTabWidget.__init__(self, *args, **kwargs)
-
-        self.tabButton = QToolButton(self)
-        self.tabButton.setText('+')
-        font = self.tabButton.font()
-        font.setBold(True)
-        self.tabButton.setFont(font)
-        self.setCornerWidget(self.tabButton)
-        self.tabButton.clicked.connect(self.addPage)
-        self.setTabsClosable(True)
-        self.tabBar().setTabButton(0, QTabBar.LeftSide, None)
-
-    def addPage(self):
-        new_tab = QWidget()
-        self.addTab(new_tab, 'text')
-    def onTabCloseRequested(self, index):
-        pass
-
-    def closeTab(self, index):
-        self.removeTab(index)

@@ -1,7 +1,6 @@
 import sqlite3
 import psycopg2
 import mysql.connector
-from pathlib import Path
 import re
 
 
@@ -23,11 +22,12 @@ class DbAdap:
             if dbtype == 'sqlite':
                 if isinstance(conn, str) and len(conn) > 0:
                     if conn.find(':memory:') >= 0:
-                        self.conn = sqlite3.connect(str(conn), uri = True)
+                        self.conn = sqlite3.connect(str(conn), uri=True)
                     else:
                         self.conn = sqlite3.connect(str(conn))
                 else:
-                    raise DbAdapException(msg='Invalid path connection DB', errno="Bad path")
+                    raise DbAdapException(msg='Invalid path connection DB',
+                                          errno="Bad path")
             elif dbtype == 'postgresql':
                 self.conn = psycopg2.connect(conn)
             elif dbtype == 'mysql':

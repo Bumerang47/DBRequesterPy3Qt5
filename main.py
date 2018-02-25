@@ -81,7 +81,8 @@ class MainWindow(QMainWindow):
         filename = self.ui.pathDBEdit.text()
         dialog = QFileDialog(self)
         dialog.setWindowTitle('Open File')
-        dialog.setNameFilters(['sqlite (*.sqlite3 *.sqlite *.db)', 'All files (*)'])
+        dialog.setNameFilters(['sqlite (*.sqlite3 *.sqlite *.db)',
+                               'All files (*)'])
         dialog.setFileMode(QFileDialog.ExistingFile)
         if dialog.exec_() == QDialog.Accepted:
             filename = dialog.selectedFiles()[0]
@@ -113,7 +114,9 @@ class MainWindow(QMainWindow):
 
     def getSaveDbConnect(self):
         # Data for writing  to memory OS
-        return json.dumps({self.ui.comboBoxDBType.currentText(): self.ui.pathDBEdit.text()})
+        return json.dumps(
+            {self.ui.comboBoxDBType.currentText(): self.ui.pathDBEdit.text()}
+        )
 
     def restoreDbConnect(self, path):
         # Loading data last db_type connection from path

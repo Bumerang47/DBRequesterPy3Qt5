@@ -9,8 +9,9 @@ class ResultTableModel(QAbstractTableModel):
     Minimal and simple model for show to result SQL requests in QTableView
     """
 
-    def __init__(self, parent, data_list=None, header=None, app_name=None, *args):
-        QAbstractTableModel.__init__(self, parent, *args)
+    def __init__(self, parent, data_list=None,
+                 header=None, app_name=None, *args):
+        QAbstractTableModel.__init__(self, parent)
         self.data_list = data_list if data_list is not None else [[]]
         self.header = header if header is not None else []
         self.parent = parent
@@ -24,7 +25,7 @@ class ResultTableModel(QAbstractTableModel):
     def columnCount(self, parent):
         if len(self.data_list):
             return len(self.data_list[0])
-        return 0;
+        return 0
 
     def headerData(self, col, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -48,7 +49,9 @@ class ResultTableModel(QAbstractTableModel):
             self.header = new_header
 
         self.layoutAboutToBeChanged.emit()
-        self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(self.rowCount(0), self.columnCount(0)))
+        self.dataChanged.emit(self.createIndex(0, 0),
+                              self.createIndex(self.rowCount(0),
+                                               self.columnCount(0)))
         self.layoutChanged.emit()
         self.parent.resizeColumnsToContents()
 
@@ -61,18 +64,22 @@ class ResultTableModel(QAbstractTableModel):
         """
         if len(conn_param) == 0 and conn_type.lower() == 'sqlite':
             def_db_name = self.app_name
-            conn_param = 'file:{}?mode=memory&cache=shared'.format(def_db_name)
+            conn_param = ('file:{}?mode=memory&cache=shared'
+                          .format(def_db_name))
 
         self.db = DbAdap(conn_param, dbtype=conn_type.lower())
         self.cur = self.db.conn.cursor()
 
     def execute(self, command):
-        """execution at db, analog cur.execute on more high  abstraction with pre-treatment
+        """execution at db, analog cur.execute on more high
+           abstraction with pre-treatment
         @command (str): Text for execute
         """
 
         if re.match(r'INSERT|UPDATE|DELETE|DROP', command):
-            exec_sql = """SELECT * FROM ({com}) LIMIT 4000""".format(com=command)
+            exec_sql = ("""SELECT * FROM ({com}) LIMIT 4000"""
+                        .format(com=command))
+
         else:
             exec_sql = command
         self.cur.execute(exec_sql)
@@ -84,7 +91,8 @@ class ResultTableModel(QAbstractTableModel):
 
             count_res = 0
             if results is not None or len(results) != 0:
-                header = [description[0] for description in self.cur.description]
+                header = [description[0] for description in
+                          self.cur.description]
                 self.set_data_list(results, header)
                 count_res = len(results)
             res = ("Results {} row(s) --- lead time: {} seconds --- "
