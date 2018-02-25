@@ -22,16 +22,15 @@ class DbAdap:
         try:
             if dbtype == 'sqlite':
                 if isinstance(conn, str) and len(conn) > 0:
-                    v_file = Path(conn)
-                    if v_file.is_file():
-                        self.conn = sqlite3.connect(str(v_file))
+                    if conn.find(':memory:') >= 0:
+                        self.conn = sqlite3.connect(str(conn), uri = True)
                     else:
-                        raise DbAdapException(msg='Invalid path connection DB', errno="Bad path")
+                        self.conn = sqlite3.connect(str(conn))
                 else:
                     raise DbAdapException(msg='Invalid path connection DB', errno="Bad path")
-            if dbtype == 'postgresql':
+            elif dbtype == 'postgresql':
                 self.conn = psycopg2.connect(conn)
-            if dbtype == 'mysql':
+            elif dbtype == 'mysql':
                 # mysql connection take only to arguments of divided format.
                 # So we splitting string with connecting
                 params = {}

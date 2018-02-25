@@ -70,8 +70,10 @@ class MainWindow(QMainWindow):
         if cb.currentText().lower() != 'sqlite':
             # For other type connection is not need the file selection
             self.ui.pushPathDbButton.setEnabled(False)
+            self.ui.pathDBEdit.setPlaceholderText("")
         else:
             self.ui.pushPathDbButton.setEnabled(True)
+            self.ui.pathDBEdit.setPlaceholderText(":memory:")
 
     def onPushPathDb(self):
         """
@@ -97,6 +99,9 @@ class MainWindow(QMainWindow):
         path_db = self.ui.pathDBEdit.text()
         sql_text = self.ui.SQLTextEdit.toPlainText()
         try:
+            if (len(path_db) == 0 and type_db.lower() == 'sqlite'):
+                def_db_name = self.settings.applicationName()
+                path_db = 'file:{}?mode=memory&cache=shared'.format(def_db_name)
             db = DbAdap(path_db, dbtype=type_db.lower())
             cur = db.conn.cursor()
             cur.execute(sql_text)
