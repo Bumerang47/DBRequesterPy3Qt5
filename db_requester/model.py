@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QAbstractTableModel, Qt
-from db_adapter import DbAdap
+from db_requester.db_adapter import DbAdap
 from time import time, gmtime, strftime
 import re
 

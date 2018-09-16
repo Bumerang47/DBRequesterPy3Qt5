@@ -136,7 +136,7 @@
   <customwidget>
    <class>DbComboBox</class>
    <extends>QComboBox</extends>
-   <header location="global">my_widgets</header>
+   <header location="global">db_requester/my_widgets</header>
   </customwidget>
  </customwidgets>
  <resources/>

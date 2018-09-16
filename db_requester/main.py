@@ -1,13 +1,16 @@
 #!-*-coding:utf-8-*-
+
 import sys
+import json
+from os import path
 
 from PyQt5.QtCore import QSettings
 from PyQt5.QtWidgets import QApplication, QMessageBox, QFileDialog, QDialog
 from PyQt5 import uic
-from model import ResultTableModel
-import json
+from db_requester.model import ResultTableModel
 
-(Ui_MainWindow, QMainWindow) = uic.loadUiType('window.ui')
+app_path = path.dirname(__file__)
+(Ui_MainWindow, QMainWindow) = uic.loadUiType('/'.join([app_path, 'window.ui']))
 sys._excepthook = sys.excepthook
 
 ICO_PATH_FOLDER = 'icons/folder.png'
@@ -148,16 +151,12 @@ def show_warning(title, text):
     msg.exec()
 
 
-# -----------------------------------------------------#
-if __name__ == '__main__':
-    # create application
+def run_application():
     app = QApplication(sys.argv)
     app.setApplicationName("dbSelect")
     db_type_list = ['SQLite', 'PostgreSQL', 'MySql']
     desc_settings = ('NameCompany', 'ToolName')
-    # create widget
     w = MainWindow(settings=desc_settings, db_types=db_type_list)
     w.setWindowTitle('Database Requester')
     w.show()
-    # execute application
     sys.exit(app.exec_())
