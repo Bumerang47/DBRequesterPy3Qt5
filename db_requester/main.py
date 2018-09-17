@@ -44,11 +44,6 @@ class MainWindow(QMainWindow):
         cb.loadItems(db_types)
         cb.previous_choice = cb.currentText()
 
-        # Model table result init
-        app_name = self.settings.applicationName()
-        t_model = ResultTableModel(self.ui.tableSQLResult, app_name=app_name)
-        self.ui.tableSQLResult.setModel(t_model)
-
         self.restoreDbConnect(db_connect)
         self.statusBar().showMessage('Ready')
 
@@ -101,8 +96,12 @@ class MainWindow(QMainWindow):
         path_db = self.ui.pathDBEdit.text()
         sql_text = self.ui.SQLTextEdit.toPlainText()
         try:
-            t_model = self.ui.tableSQLResult.model()
+
+            # Model table result init
+            app_name = self.settings.applicationName()
+            t_model = ResultTableModel(self.ui.tableSQLResult, app_name=app_name)
             t_model.connect_db(path_db, type_db.lower())
+            self.ui.tableSQLResult.setModel(t_model)
             status_mes = t_model.execute(sql_text)
             self.statusBar().showMessage(status_mes)
         except Exception as e:
