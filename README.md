@@ -15,4 +15,5 @@
 * User friendly
 * Lead time
 
-
+![alt text][logo]
+[logo]: https://github.com/Bumerang47/DBRequesterPy3Qt5/tree/master/screenshots/db_requester.gif "Demonstration working"
