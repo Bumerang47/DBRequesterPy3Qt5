@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='db_requester',
@@ -21,5 +21,11 @@ setup(
         'console_scripts': [
             'db_requester=db_requester.main:run_application'
         ]
-    }
+    },
+    packages=find_packages(),
+    include_package_data=True,
+    package_data={
+        '': ['*.ui', 'icons/*.png'],
+    },
+    zip_safe=False,
 )
