@@ -47,8 +47,6 @@ class MainWindow(QMainWindow):
         self.set_db_params(connect_params)
         self.statusBar().showMessage('Ready')
 
-        self.ui.SQLTextEdit.setPlainText('select * from albums')
-
     def change_currend_database(self, text):
         cb = self.ui.comboBoxDBType
         db_path = self.ui.pathDBEdit.text()
