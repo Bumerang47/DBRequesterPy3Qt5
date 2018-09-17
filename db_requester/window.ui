@@ -82,8 +82,8 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>icons/folder.png</normaloff>
-           <activeon>icons/folder-open.png</activeon>icons/folder.png</iconset>
+           <normaloff>db_requester/icons/folder.png</normaloff>
+           <activeon>db_requester/icons/folder-open.png</activeon>db_requester/icons/folder.png</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
