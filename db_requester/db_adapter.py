@@ -4,18 +4,17 @@ import mysql.connector
 import re
 
 
-class DbAdapException(Exception):
-    # Exception type for warning message same and to any type base
-    def __init__(self, errno, msg, *errors):
+class DbAdapterException(Exception):
+    """ Exception type for warning message same and to any type base """
+
+    def __init__(self, error, msg, *errors):
         Exception.__init__(self, msg)
-        self.errno = errno if errno else None
+        self.error = error if error else None
         self.msg = msg
 
 
-class DbAdap:
-    """
-    Universal adapter for connection DB
-    """
+class DbAdapter:
+    """ Universal adapter for connection DB """
 
     def __init__(self, conn, dbtype='sqlite'):
         try:
@@ -26,8 +25,7 @@ class DbAdap:
                     else:
                         self.conn = sqlite3.connect(str(conn))
                 else:
-                    raise DbAdapException(msg='Invalid path connection DB',
-                                          errno="Bad path")
+                    raise DbAdapterException(msg='Invalid path connection DB', errno="Bad path")
             elif dbtype == 'postgresql':
                 self.conn = psycopg2.connect(conn)
             elif dbtype == 'mysql':
@@ -43,29 +41,4 @@ class DbAdap:
         except Exception as e:
             msg = e.msg if 'msg' in dir(e) else e.args[0]
             errno = e.errno if 'errno' in dir(e) else None
-            raise DbAdapException(errno, msg)
-        self._complete = False
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type_, value, traceback):
-        self.close()
-
-    def complete(self):
-        self._complete = True
-
-    def close(self):
-        if self.conn:
-            try:
-                if self._complete:
-                    self.conn.commit()
-                else:
-                    self.conn.rollback()
-            except Exception as e:
-                raise DbAdapException(*e.args)
-            finally:
-                try:
-                    self.conn.close()
-                except Exception as e:
-                    raise DbAdapException(*e.args)
+            raise DbAdapterException(errno, msg)

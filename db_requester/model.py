@@ -1,21 +1,20 @@
 from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
-from db_requester.db_adapter import DbAdap
+from db_requester.db_adapter import DbAdapter
 
 
 class ResultTableModel(QAbstractTableModel):
-    """
-    Minimal and simple model for show to result SQL requests in QTableView
+    """ Minimal and simple model for show to result SQL requests in QTableView
+
     """
 
-    def __init__(self, parent, data_list=None, header=None, app_name=None):
+    def __init__(self, parent, app_name=None):
         QAbstractTableModel.__init__(self, parent)
-        self.data_list = data_list if data_list is not None else [[]]
         self.data = []
-        self.headers = header if header is not None else []
-        self.parent = parent
+        self.headers = []
         self.app_name = app_name
         self.db = None
         self.cur = None
+        super().__init__(parent)
 
     def rowCount(self, index=QModelIndex()):
         if not index.isValid():
@@ -58,30 +57,24 @@ class ResultTableModel(QAbstractTableModel):
             self.createIndex(self.rowCount(), self.columnCount())
         )
         self.layoutChanged.emit()
-        self.parent.resizeColumnsToContents()
+        self.parent().resizeColumnsToContents()
 
     def connect_db(self, conn_param, conn_type):
-        """
-        Method for attachment bd to this model
-        @param conn_param: path or config for connection database
-        @param conn_type: type db connection
-        @return: None. Created are db and cursor in object this model
-        """
-        if len(conn_param) == 0 and conn_type.lower() == 'sqlite':
+        if not conn_param and conn_type.lower() == 'sqlite':
             def_db_name = self.app_name
-            conn_param = ('file:{}?mode=memory&cache=shared'
-                          .format(def_db_name))
-        if self.db is not None:
-            self.db.close()
-        self.db = DbAdap(conn_param, dbtype=conn_type.lower())
+            conn_param = ('file:{}?mode=memory&cache=shared'.format(def_db_name))
+        if self.cur is not None:
+            self.cur.close()
+        self.db = DbAdapter(conn_param, dbtype=conn_type.lower())
         self.cur = self.db.conn.cursor()
         self.cur.arraysize = 10
 
     def execute(self, command):
-        """execution at db, analog cur.execute on more high
-           abstraction with pre-treatment
-        @command (str): Text for execute
+        """ execution at db, analog cur.execute on more high
+        abstraction with pre-treatment
+
         """
+
         self.cur.execute(command)
         if self.cur.description is not None:
             self.headers = [description[0] for description in self.cur.description]

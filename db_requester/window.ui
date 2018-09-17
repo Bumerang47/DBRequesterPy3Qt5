@@ -114,7 +114,7 @@
        <item>
         <widget class="QPushButton" name="SelectButton">
          <property name="text">
-          <string>Select</string>
+          <string>Execute</string>
          </property>
         </widget>
        </item>
@@ -136,7 +136,7 @@
   <customwidget>
    <class>DbComboBox</class>
    <extends>QComboBox</extends>
-   <header location="global">db_requester/my_widgets</header>
+   <header location="global">db_requester/custom_widgets</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -145,7 +145,7 @@
    <sender>comboBoxDBType</sender>
    <signal>currentIndexChanged(QString)</signal>
    <receiver>MainWindow</receiver>
-   <slot>onCurrentComboDbChange()</slot>
+   <slot>change_currend_database()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>411</x>
@@ -161,7 +161,7 @@
    <sender>pushPathDbButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>onPushPathDb()</slot>
+   <slot>read_file_path_selected()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>741</x>
@@ -177,7 +177,7 @@
    <sender>SelectButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>onPushExecuteSQL()</slot>
+   <slot>execute_sql()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>711</x>
@@ -191,8 +191,8 @@
   </connection>
  </connections>
  <slots>
-  <slot>onPushExecuteSQL()</slot>
-  <slot>onPushPathDb()</slot>
-  <slot>onCurrentComboDbChange()</slot>
+  <slot>execute_sql()</slot>
+  <slot>read_file_path_selected()</slot>
+  <slot>change_currend_database()</slot>
  </slots>
 </ui>

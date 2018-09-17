@@ -17,7 +17,7 @@ ICO_PATH_FOLDER = 'icons/folder.png'
 ICO_PATH_FOLDER_OPEN = 'icons/folder-open.png'
 
 
-def my_exception_hook(exctype, value, traceback):
+def debug_exception_hook(exctype, value, traceback):
     # Print the error and traceback
     print(exctype, value, traceback)
     # Call the normal Exception hook after
@@ -26,7 +26,7 @@ def my_exception_hook(exctype, value, traceback):
 
 
 # Set the exception hook to our wrapping function
-sys.excepthook = my_exception_hook
+sys.excepthook = debug_exception_hook
 
 
 class MainWindow(QMainWindow):
@@ -37,25 +37,22 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.settings = QSettings(*settings)
-        db_connect = self.settings.value('dbConnect', '')
+        connect_params = self.settings.value('dbConnect', '')
 
         # Attach DB types set to CBox
         cb = self.ui.comboBoxDBType
-        cb.loadItems(db_types)
+        cb.load_items(db_types)
         cb.previous_choice = cb.currentText()
 
-        self.restoreDbConnect(db_connect)
+        self.set_db_params(connect_params)
         self.statusBar().showMessage('Ready')
 
-    def onCurrentComboDbChange(self, text):
-        """
-        Event with changed db_type
-        @param text: name to db type
-        @return: Set path to connection db field
-        """
+        self.ui.SQLTextEdit.setPlainText('select * from albums')
+
+    def change_currend_database(self, text):
         cb = self.ui.comboBoxDBType
-        path = self.ui.pathDBEdit.text()
-        cb.savePreviousPath(path)
+        db_path = self.ui.pathDBEdit.text()
+        cb.save_previous_path(db_path)
 
         if text in cb.combo_db_field_cache:
             self.ui.pathDBEdit.setText(cb.combo_db_field_cache[text])
@@ -71,38 +68,28 @@ class MainWindow(QMainWindow):
             self.ui.pushPathDbButton.setEnabled(True)
             self.ui.pathDBEdit.setPlaceholderText(":memory:")
 
-    def onPushPathDb(self):
-        """
-        Event for opening dialog to selected file SQLite
-        @return: set new path for connection file
-        """
-        filename = self.ui.pathDBEdit.text()
+    def read_file_path_selected(self):
+        file_path = self.ui.pathDBEdit.text()
         dialog = QFileDialog(self)
         dialog.setWindowTitle('Open File')
-        dialog.setNameFilters(['sqlite (*.sqlite3 *.sqlite *.db)',
-                               'All files (*)'])
+        dialog.setNameFilters(['sqlite (*.sqlite3 *.sqlite *.db)', 'All files (*)'])
         dialog.setFileMode(QFileDialog.ExistingFile)
         if dialog.exec_() == QDialog.Accepted:
-            filename = dialog.selectedFiles()[0]
-        self.ui.pathDBEdit.setText(filename)
+            file_path = dialog.selectedFiles()[0]
+        self.ui.pathDBEdit.setText(file_path)
         self.ui.pushPathDbButton.setChecked(False)
 
-    def onPushExecuteSQL(self):
-        """
-        Event for execute SQL request
-        @return:  Filling TavleView or Message with error
-        """
+    def execute_sql(self):
         type_db = self.ui.comboBoxDBType.currentText()
         path_db = self.ui.pathDBEdit.text()
         sql_text = self.ui.SQLTextEdit.toPlainText()
         try:
-
             # Model table result init
             app_name = self.settings.applicationName()
-            t_model = ResultTableModel(self.ui.tableSQLResult, app_name=app_name)
-            t_model.connect_db(path_db, type_db.lower())
-            self.ui.tableSQLResult.setModel(t_model)
-            status_mes = t_model.execute(sql_text)
+            model = ResultTableModel(self.ui.tableSQLResult, app_name=app_name)
+            model.connect_db(path_db, type_db.lower())
+            self.ui.tableSQLResult.setModel(model)
+            status_mes = model.execute(sql_text)
             self.statusBar().showMessage(status_mes)
         except Exception as e:
             w_title = "Operation Error"
@@ -112,28 +99,30 @@ class MainWindow(QMainWindow):
             if 'msg' in dir(e):
                 w_message = str(e.msg)
             show_warning(w_title, w_message)
-            # raise
 
-    def getSaveDbConnect(self):
-        # Data for writing  to memory OS
+    @property
+    def saved_connection(self):
+        """
+        connection param for save to memory system
+        """
+
         return json.dumps(
             {self.ui.comboBoxDBType.currentText(): self.ui.pathDBEdit.text()}
         )
 
-    def restoreDbConnect(self, path):
-        # Loading data last db_type connection from path
+    def set_db_params(self, path):
         if not path:
             return
         parm = json.loads(path)
         if len(parm) > 0:
             type_db = list(parm.keys())[0]
-            self.ui.comboBoxDBType.selectText(type_db)
+            self.ui.comboBoxDBType.setCurrentText(type_db)
             self.ui.pathDBEdit.setText(parm[type_db])
 
     def closeEvent(self, event):
         # Event before close, run saving last connection
-        db_connect = self.getSaveDbConnect()
-        self.settings.setValue('dbConnect', db_connect)
+        connect_params = self.saved_connection
+        self.settings.setValue('dbConnect', connect_params)
         super(MainWindow, self).closeEvent(event)
 
     def __del__(self):
